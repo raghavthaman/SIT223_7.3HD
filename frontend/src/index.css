@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+.leaflet-marker-icon.truck-marker-container {
+  transition: transform 2.5s linear;
+}
+
+.custom-bin-icon-container {
+  transition: transform 0.3s ease;
+}
+
+.custom-bin-icon-container:hover {
+  transform: scale(1.2);
+  z-index: 1000 !important;
+}
