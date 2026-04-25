@@ -1,12 +1,12 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Smart Waste Management System - Backend API",
+  "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
-    "test": "jest --coverage"
+    "test": "jest --coverage --reporters=default --reporters=jest-junit"
   },
   "keywords": [],
   "author": "",
@@ -24,7 +24,23 @@
   "devDependencies": {
     "cross-env": "^10.1.0",
     "jest": "^30.3.0",
+    "jest-junit": "^16.0.0",
     "nodemon": "^3.1.14",
     "supertest": "^7.2.2"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "coverageReporters": [
+      "lcov",
+      "text",
+      "clover"
+    ],
+    "coverageDirectory": "coverage"
+  },
+  "jest-junit": {
+    "outputDirectory": ".",
+    "outputName": "junit.xml",
+    "classNameTemplate": "{classname}",
+    "titleTemplate": "{title}"
   }
 }
