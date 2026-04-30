@@ -4,7 +4,7 @@ const request = require('supertest');
 const app = require('../src/app');
 const { calculateStatus } = require('../src/utils/statusCalculator');
 
-describe('🚀 Smart Waste System – Stable Coverage Tests', () => {
+describe(' Smart Waste System – Stable Coverage Tests', () => {
 
   // ---------------- HEALTH ----------------
   test('GET /health returns 200', async () => {
