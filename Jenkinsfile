@@ -20,7 +20,7 @@ pipeline {
 
     stages {
 
-        // ── CHECKOUT ────────────────────────────────────────────────
+        // ── 1. CHECKOUT ─────────────────────────────────────────
         stage('Checkout') {
             steps {
                 echo '========== CHECKOUT =========='
@@ -29,7 +29,7 @@ pipeline {
             }
         }
 
-        // ── BUILD ───────────────────────────────────────────────────
+        // ── 2. BUILD ────────────────────────────────────────────
         stage('Build') {
             steps {
                 echo "========== BUILD: ${IMAGE_TAG} =========="
@@ -44,7 +44,7 @@ pipeline {
             }
         }
 
-        // ── TEST ────────────────────────────────────────────────────
+        // ── 3. TEST ─────────────────────────────────────────────
         stage('Test') {
             steps {
                 echo '========== TEST =========='
@@ -57,10 +57,16 @@ pipeline {
                 always {
                     junit 'backend/junit.xml'
                 }
+                success {
+                    echo 'TEST PASSED'
+                }
+                failure {
+                    error 'TEST FAILED — stopping pipeline'
+                }
             }
         }
 
-        // ── CODE QUALITY (BLOCKING) ─────────────────────────────────
+        // ── 4. CODE QUALITY (SONARCLOUD) ────────────────────────
         stage('Code Quality') {
             steps {
                 echo '========== SONARCLOUD =========='
@@ -72,6 +78,7 @@ pipeline {
                               -Dsonar.token=%SONAR_TOKEN% ^
                               -Dsonar.organization=%SONAR_ORG% ^
                               -Dsonar.projectKey=%SONAR_PROJECT% ^
+                              -Dsonar.projectName="Smart Waste Backend" ^
                               -Dsonar.sources=src ^
                               -Dsonar.tests=tests ^
                               -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info ^
@@ -82,21 +89,22 @@ pipeline {
             }
         }
 
+        // ── 5. QUALITY GATE (NON-BLOCKING) ──────────────────────
         stage('Quality Gate') {
-    steps {
-        script {
-            timeout(time: 2, unit: 'MINUTES') {
-                def qg = waitForQualityGate abortPipeline: false
-                echo "Quality Gate Status: ${qg.status}"
+            steps {
+                script {
+                    timeout(time: 2, unit: 'MINUTES') {
+                        def qg = waitForQualityGate abortPipeline: false
+                        echo "Quality Gate Status: ${qg.status}"
+                    }
+                }
             }
         }
-    }
-}
 
-        // ── SECURITY (GATED) ────────────────────────────────────────
+        // ── 6. SECURITY (TRIVY) ─────────────────────────────────
         stage('Security') {
             steps {
-                echo '========== SECURITY (Trivy) =========='
+                echo '========== SECURITY =========='
                 bat """
                     C:\\Users\\91887\\scoop\\shims\\trivy.exe fs ^
                         --severity HIGH,CRITICAL ^
@@ -114,7 +122,7 @@ pipeline {
             }
         }
 
-        // ── DEPLOY WITH ROLLBACK ────────────────────────────────────
+        // ── 7. DEPLOY ───────────────────────────────────────────
         stage('Deploy') {
             steps {
                 echo '========== DEPLOY =========='
@@ -122,6 +130,7 @@ pipeline {
                 bat 'docker compose down || ver > nul'
                 bat 'docker compose up -d'
 
+                echo 'Waiting for services...'
                 sleep 20
 
                 script {
@@ -134,30 +143,21 @@ pipeline {
                 }
             }
             post {
+                success {
+                    echo 'DEPLOY SUCCESS'
+                }
                 failure {
-                    echo "ROLLBACK STARTED"
+                    echo 'ROLLBACK STARTED'
                     bat 'docker compose down'
-                    bat """
-                        docker pull %BACKEND_IMAGE%:latest
-                        docker pull %FRONTEND_IMAGE%:latest
-                    """
                     bat 'docker compose up -d'
-                    echo "ROLLBACK COMPLETE"
                 }
             }
         }
 
-        // ── RELEASE ────────────────────────────────────────────────
+        // ── 8. RELEASE ──────────────────────────────────────────
         stage('Release') {
             steps {
                 echo "========== RELEASE =========="
-
-                bat """
-                    echo VERSION=%IMAGE_TAG% > release-manifest.txt
-                    echo BACKEND_IMAGE=%BACKEND_IMAGE%:%IMAGE_TAG% >> release-manifest.txt
-                    echo FRONTEND_IMAGE=%FRONTEND_IMAGE%:%IMAGE_TAG% >> release-manifest.txt
-                """
-                archiveArtifacts artifacts: 'release-manifest.txt'
 
                 bat """
                     echo %DOCKER_CREDS_PSW% | docker login -u %DOCKER_CREDS_USR% --password-stdin
@@ -172,7 +172,7 @@ pipeline {
             }
         }
 
-        // ── MONITORING (IMPROVED) ──────────────────────────────────
+        // ── 9. MONITORING ───────────────────────────────────────
         stage('Monitoring') {
             steps {
                 echo '========== MONITORING =========='
@@ -180,11 +180,22 @@ pipeline {
                 bat 'docker stats --no-stream'
                 bat 'docker logs smart-waste-backend --tail=20'
 
-                echo "Monitoring Stack:"
-                echo "Prometheus → metrics"
-                echo "Grafana → dashboard"
-                echo "Alertmanager → alerts"
+                echo "Prometheus: http://localhost:9090"
+                echo "Grafana: http://localhost:3000"
+                echo "Metrics: http://localhost:5000/metrics"
             }
+        }
+    }
+
+    post {
+        always {
+            echo "Pipeline completed: ${currentBuild.currentResult}"
+        }
+        failure {
+            echo "Pipeline failed — check logs"
+        }
+        success {
+            echo "SUCCESS — All stages executed"
         }
     }
 }
