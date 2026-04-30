@@ -1,0 +1,10 @@
+global:
+  scrape_interval: 15s
+
+rule_files:
+  - 'alert.rules'
+
+scrape_configs:
+  - job_name: 'smart-waste-backend'
+    static_configs:
+      - targets: ['backend:5000']

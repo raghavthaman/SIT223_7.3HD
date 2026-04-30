@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const { register, requestCountMiddleware } = require('./utils/metrics');
 
 const binRoutes = require('./routes/binRoutes');
 const healthRoutes = require('./routes/healthRoutes');
@@ -14,6 +15,13 @@ const app = express();
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use(requestCountMiddleware);
+
+// Metrics endpoint
+app.get('/metrics', async (req, res) => {
+  res.setHeader('Content-Type', register.contentType);
+  res.send(await register.metrics());
+});
 
 // Routes
 app.use('/api/auth', authRoutes);
