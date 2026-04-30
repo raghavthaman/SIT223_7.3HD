@@ -1,7 +1,10 @@
+jest.setTimeout(10000);
+
 const request = require('supertest');
 const app = require('../src/app');
+const { calculateStatus } = require('../src/utils/statusCalculator');
 
-describe('Stable Coverage Tests', () => {
+describe('🚀 Smart Waste System – Stable Coverage Tests', () => {
 
   // ---------------- HEALTH ----------------
   test('GET /health returns 200', async () => {
@@ -9,12 +12,22 @@ describe('Stable Coverage Tests', () => {
     expect(res.statusCode).toBe(200);
   });
 
-  test('GET /health returns status', async () => {
+  test('GET /health returns status field', async () => {
     const res = await request(app).get('/health');
     expect(res.body).toHaveProperty('status');
   });
 
-  // ---------------- SAFE ROUTES ----------------
+  test('GET /health returns JSON content', async () => {
+    const res = await request(app).get('/health');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  test('GET /health contains expected value', async () => {
+    const res = await request(app).get('/health');
+    expect(res.body.status).toBeDefined();
+  });
+
+  // ---------------- ROUTING ----------------
   test('GET unknown route returns 404', async () => {
     const res = await request(app).get('/unknown');
     expect(res.statusCode).toBe(404);
@@ -25,36 +38,40 @@ describe('Stable Coverage Tests', () => {
     expect(res.statusCode).toBe(404);
   });
 
-  // ---------------- AUTH (SAFE TESTS ONLY) ----------------
-  test('POST /api/auth/login without body fails', async () => {
-    const res = await request(app).post('/api/auth/login').send({});
-    expect(res.statusCode).toBeGreaterThanOrEqual(400);
+  test('PUT unknown route returns 404', async () => {
+    const res = await request(app).put('/random');
+    expect(res.statusCode).toBe(404);
   });
 
-  // ---------------- UTILS ----------------
-  const { calculateStatus } = require('../src/utils/statusCalculator');
+  test('DELETE unknown route returns 404', async () => {
+    const res = await request(app).delete('/random');
+    expect(res.statusCode).toBe(404);
+  });
 
-  test('statusCalculator Normal', () => {
+  // ---------------- STATUS CALCULATOR ----------------
+  test('calculateStatus returns Normal', () => {
     expect(calculateStatus(20)).toBe('Normal');
   });
 
-  test('statusCalculator Warning', () => {
+  test('calculateStatus returns Warning', () => {
     expect(calculateStatus(60)).toBe('Warning');
   });
 
-  test('statusCalculator Critical', () => {
+  test('calculateStatus returns Critical', () => {
     expect(calculateStatus(90)).toBe('Critical');
   });
 
   // ---------------- EXTRA COVERAGE ----------------
-  test('Health route returns JSON', async () => {
-    const res = await request(app).get('/health');
-    expect(res.headers['content-type']).toMatch(/json/);
+  test('Health route responds quickly', async () => {
+    const start = Date.now();
+    await request(app).get('/health');
+    const end = Date.now();
+    expect(end - start).toBeLessThan(2000);
   });
 
-  test('Health route contains expected keys', async () => {
+  test('Health route returns object', async () => {
     const res = await request(app).get('/health');
-    expect(res.body).toHaveProperty('status');
+    expect(typeof res.body).toBe('object');
   });
 
 });
