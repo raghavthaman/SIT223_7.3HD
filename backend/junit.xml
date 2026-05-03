@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="jest tests" tests="20" failures="0" errors="0" time="4.496">
+  <testsuite name="Status Calculator Utility" errors="0" failures="0" skipped="0" timestamp="2026-05-03T06:51:55" time="1.294" tests="3">
+    <testcase classname="Status Calculator Utility" name="should return Normal for fillLevel &lt; 50" time="0.009">
+    </testcase>
+    <testcase classname="Status Calculator Utility" name="should return Warning for fillLevel &gt; 50 and &lt;= 80" time="0.001">
+    </testcase>
+    <testcase classname="Status Calculator Utility" name="should return Critical for fillLevel &gt; 80" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="Bins API Endpoints" errors="0" failures="0" skipped="0" timestamp="2026-05-03T06:51:55" time="3.603" tests="4">
+    <testcase classname="Bins API Endpoints GET /health" name="should return 200 and healthy status" time="0.061">
+    </testcase>
+    <testcase classname="Bins API Endpoints POST /api/bins" name="should calculate status as Critical and create bin" time="0.043">
+    </testcase>
+    <testcase classname="Bins API Endpoints POST /api/bins" name="should return 400 if fillLevel is missing" time="0.01">
+    </testcase>
+    <testcase classname="Bins API Endpoints GET /api/bins" name="should fetch all bins" time="0.01">
+    </testcase>
+  </testsuite>
+  <testsuite name="Smart Waste System - Stable Coverage Tests" errors="0" failures="0" skipped="0" timestamp="2026-05-03T06:51:55" time="3.628" tests="13">
+    <testcase classname="Smart Waste System - Stable Coverage Tests" name="GET /health returns 200" time="0.055">
+    </testcase>
+    <testcase classname="Smart Waste System - Stable Coverage Tests" name="GET /health returns status field" time="0.012">
+    </testcase>
+    <testcase classname="Smart Waste System - Stable Coverage Tests" name="GET /health returns JSON content" time="0.008">
+    </testcase>
+    <testcase classname="Smart Waste System - Stable Coverage Tests" name="GET /health contains expected value" time="0.007">
+    </testcase>
+    <testcase classname="Smart Waste System - Stable Coverage Tests" name="GET unknown route returns 404" time="0.009">
+    </testcase>
+    <testcase classname="Smart Waste System - Stable Coverage Tests" name="POST unknown route returns 404" time="0.008">
+    </testcase>
+    <testcase classname="Smart Waste System - Stable Coverage Tests" name="PUT unknown route returns 404" time="0.008">
+    </testcase>
+    <testcase classname="Smart Waste System - Stable Coverage Tests" name="DELETE unknown route returns 404" time="0.008">
+    </testcase>
+    <testcase classname="Smart Waste System - Stable Coverage Tests" name="calculateStatus returns Normal" time="0.001">
+    </testcase>
+    <testcase classname="Smart Waste System - Stable Coverage Tests" name="calculateStatus returns Warning" time="0.001">
+    </testcase>
+    <testcase classname="Smart Waste System - Stable Coverage Tests" name="calculateStatus returns Critical" time="0.001">
+    </testcase>
+    <testcase classname="Smart Waste System - Stable Coverage Tests" name="Health route responds quickly" time="0.011">
+    </testcase>
+    <testcase classname="Smart Waste System - Stable Coverage Tests" name="Health route returns object" time="0.009">
+    </testcase>
+  </testsuite>
+</testsuites>
