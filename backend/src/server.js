@@ -16,7 +16,7 @@ const server = http.createServer(app);
 // Socket.IO setup
 const io = new Server(server, {
   cors: {
-    origin: "*",
+    origin: process.env.NODE_ENV === 'production' ? process.env.FRONTEND_URL : "*",
     methods: ["GET", "POST", "PUT", "DELETE"]
   }
 });
@@ -52,7 +52,10 @@ process.on('SIGINT', async () => {
 // MongoDB connection
 mongoose.connect(MONGO_URI)
   .then(async () => {
-    console.log(`Connected to MongoDB: ${MONGO_URI}`);
+    const maskedURI = MONGO_URI.includes('@') 
+      ? MONGO_URI.replace(/\/\/.*@/, '//****:****@') 
+      : MONGO_URI;
+    console.log(`Connected to MongoDB: ${process.env.NODE_ENV === 'production' ? 'HIDDEN' : maskedURI}`);
     
     try {
       const count = await Bin.countDocuments();
