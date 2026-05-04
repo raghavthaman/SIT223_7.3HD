@@ -1,5 +1,7 @@
 # Smart Waste Management System (Top HD)
 
+**Live Deployment:** [https://sit-223-7-3-hd.vercel.app/](https://sit-223-7-3-hd.vercel.app/) *(Frontend deployed via Vercel, Backend deployed via Render)*
+
 An IoT-based garbage bin monitoring full-stack web application. 
 This project is strategically structured to demonstrate **DevOps architectures, CI/CD pipelines, container orchestration, code quality analysis, real-time monitoring, and security scanning**.
 
